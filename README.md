@@ -2,4 +2,5 @@
 
 ## Architecture
 
-<img src="https://github.com/eddie2070/aws-consoleblocker/blob/master/img/ConsoleBlocker-diagram"/>
+<img src="https://github.com/eddie2070/aws-consoleblocker/blob/main/img/ConsoleBlocker-diagram.png?raw=true"/>
+
