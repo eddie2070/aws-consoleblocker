@@ -10,6 +10,10 @@ class ConsoleService extends core.Construct {
   constructor(scope, id) {
     super(scope, id);
 
+    const masterOrgAccountID = new core.CfnParameter(this, "masterOrgAccountID", {
+      type: "String",
+      description: "The ID of the AWS Organizations master account."});
+
     //const bucket = new s3.Bucket(this, "WidgetStore");
 
     const handler = new lambda.Function(this, "WidgetHandler", {
@@ -62,6 +66,25 @@ class ConsoleService extends core.Construct {
       partitionKey: { name: 'ID', type: dynamodb.AttributeType.STRING },
       timeToLiveAttribute: 'TTL',
       tableName: 'account-safelist'
+    });
+
+    const roleDDBWrite = new iam.Role(this, 'MasterAccount-WriteDDBConsoleBlockerRole', {
+      assumedBy: new iam.AccountPrincipal(masterOrgAccountID.valueAsString),
+      name: 'MasterAccount-WriteDDBConsoleBlockerRole'
+    });
+
+    roleDDBWrite.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      resources: [table.tableArn],
+      actions: ['dynamodb:PutItem',
+                'dynamodb:UpdateItem'
+              ],
+    }));
+
+    const ddbarn = new core.CfnOutput(this, "DDBTableARN",{
+      value: table.tableArn,
+      description: 'DynamoDB Table ARN',
+      exportName: 'DDBTableARN'
     });
 
   }
